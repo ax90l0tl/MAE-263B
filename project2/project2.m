@@ -6,7 +6,7 @@ L2 = Link('revolute', 'd', 0.0, 'a', 0.325, 'alpha', 0.0, 'modified', 'qlim', [-
 L3 = Link('revolute', 'd', 0.0, 'a', 0.225, 'alpha', 0.0, 'modified', 'qlim', [-pi, pi]);
 L4 = Link('prismatic', 'a', 0, 'alpha', pi, 'modified', 'qlim', [0, 0.150]);
 bot = SerialLink([L1, L2, L3, L4]);
-bot.teach();
+% bot.teach();
 % joint space
 init_pose = [0.0, pi/2, 0.0, 0.0];
 % world space
@@ -37,31 +37,35 @@ pt = [0.2, 0.2, 0, 0.416];
 clc
 close all
 
-a = 50; % deg/s^2
+a = 50*ones(1, 4) % deg/s^2
 v1 = 420;
 v2 = 720;
 v3 = 1100;
 v4 = 3000;
+v = [v1, v2, v3, v4]; 
 
 % fk = IK(pcb_pos);
 fk = init_pose;
-fk = [fk; IK(feeder_pos_mat)];
-fk = [fk; IK(pos_1_mat)];
-fk = [fk; IK(feeder_pos_mat)];
-fk = [fk; IK(pos_2_mat)];
-fk = [fk; IK(feeder_pos_mat)];
-fk = [fk; IK(pos_3_mat)];
-fk = [fk; IK(feeder_pos_mat)];
-fk = [fk; IK(pos_4_mat)];
+fk = [fk; IK(feeder_pos_mat, init_pose)];
 
-disp(size(fk))
+linearParabolicBlendTrajectory2(fk, v, a, 10)
 
+% fk = [fk; IK(pos_1_mat, fk(end, :))];
+% fk = [fk; IK(feeder_pos_mat)];
+% fk = [fk; IK(pos_2_mat)];
+% fk = [fk; IK(feeder_pos_mat)];
+% fk = [fk; IK(pos_3_mat)];
+% fk = [fk; IK(feeder_pos_mat)];
+% fk = [fk; IK(pos_4_mat)];
+
+% disp(size(fk))
+% fk
 % jointspace_animation(fk, bot, length(fk), [0, 90], 'test')
 
 
 %%
 
-function joint_vals = IK(pt)
+function joint_vals = IK(pt, prev_pose)
 d4 = pt(3, 4);
 a2 = 0.325;
 a3 = 0.225;
@@ -80,8 +84,13 @@ if sqrt(dist) < a2 + a3 && sqrt(dist) > a2 - a3 && d4 <= 0.416 && d4 >= l4
     t1_alt = atan2(-s_t1, c_t1) + theta;
     t3 = atan2(pt(2, 1), pt(1, 1)) - t2 - t1;
     t3_alt = -t3;
-    joint_vals = [[t1, t2, t3, d4];
-        [t1_alt, t2_alt, t3_alt, d4]];
+    % norm(abs([t1, t2, t3, d4] - prev_pose))
+    % norm(abs([t1_alt, t2_alt, t3_alt, d4] - prev_pose))
+    if norm(abs([t1, t2, t3, d4] - prev_pose)) > norm(abs([t1_alt, t2_alt, t3_alt, d4] - prev_pose))
+        joint_vals = [t1_alt, t2_alt, t3_alt, d4];
+    else
+        joint_vals = [t1, t2, t3, d4];
+    end
 else
     disp('Location outside workspace')
     joint_vals = [NaN, NaN, NaN, NaN];

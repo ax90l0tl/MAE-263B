@@ -17,13 +17,13 @@ function [q,qd,qdd, qddd] = linearParabolicBlendTrajectory2(q0, qd_max, qdd_max,
 % acc - [1 x N] accelerations
 % jerk - [1 x N] jerk
 
-q = zeros(size(q0, 2), N);
-qd = zeros(size(q0, 2), N);
-qdd = zeros(size(q0, 2), N);
-qddd = zeros(size(q0, 2), N);
+q = zeros(N, size(q0, 2));
+qd = zeros(N, size(q0, 2));
+qdd = zeros(N, size(q0, 2));
+qddd = zeros(N, size(q0, 2));
 for i = 1:1:length(q)
     if i == 1
-
+    
     elseif i == length(q)
 
     else
