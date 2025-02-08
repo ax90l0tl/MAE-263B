@@ -1,4 +1,5 @@
-function [q,qd,qdd, qddd] = linearParabolicBlendTrajectory(t0, tf, q0, qf, tb, qdd, N)
+function [q,qd,qdd, qddd, time] = linearParabolicBlendTrajectory(t0, tf, q0, qf, tb, qdd, N)
+% Example from TA
 % linearParabolicBlend generates joint-space positions from q0 to qf
 % with a trapezoidal velocity profile (accel-constant-accel).
 
@@ -18,8 +19,12 @@ function [q,qd,qdd, qddd] = linearParabolicBlendTrajectory(t0, tf, q0, qf, tb, q
 % jerk - [1 x N] jerk
 T = tf - t0;
 % Time vector
-t = linspace(t0, tf, N);
+time = linspace(t0, tf, N);
 if(tb == 0 && qdd ~= 0) % calculate tb
+    while qdd^2 * T^2 - 4 * abs(qdd) * abs(qf-q0) < 0
+        T = tf - t0;
+        time = linspace(t0, tf, N);
+    end
     tb = 0.5 * T - sqrt(qdd^2 * T^2 - 4 * abs(qdd) * abs(qf-q0)) / abs(2 *qdd);
 elseif(tb ~= 0 && qdd == 0) % calculate qdd
     qdd = abs((qf - q0) / (tb * (T - tb)));
@@ -37,17 +42,17 @@ qb1 = ab0(1) + ab0(2) * (t0 + tb) + ab0(3) * (t0 + tb)^2;
 qb2 = abf(1) + abf(2) * (tf - tb) + abf(3) * (tf - tb)^2;
 a = [1 (t0 + tb);1 tf - tb] \ [qb1;qb2]; % Coefficient for linear region
 % first parabolic region
-t11 = t((t0<=t) & (t<=t0+tb));
+t11 = time((t0<=time) & (time<=t0+tb));
 q = ab0(1) + ab0(2)*t11 + ab0(3)*t11.^2;
 qd = ab0(2) + 2*ab0(3)*t11;
 qdd = 2*ab0(3)*ones(size(t11));
 % Linear region
-t22 = t((t0+tb<t) & (t<tf-tb)); % linear region
+t22 = time((t0+tb<time) & (time<tf-tb)); % linear region
 q = [q, a(1) + a(2)*t22];
 qd = [qd, a(2).*ones(size(t22))];
 qdd = [qdd, zeros(size(t22))];
 % second parabolic region
-t33 = t((tf-tb<=t) & (t<=tf));
+t33 = time((tf-tb<=time) & (time<=tf));
 q = [q, abf(1) + abf(2)*t33 + abf(3)*t33.^2];
 qd = [qd, abf(2) + 2*abf(3)*t33];
 qdd = [qdd, 2*abf(3)*ones(size(t33))];

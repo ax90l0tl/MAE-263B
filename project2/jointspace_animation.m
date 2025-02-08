@@ -4,6 +4,7 @@ v.FrameRate = 20;
 open(v);
 p = zeros(N, 3);
 for i = 1: N
+    % q(i, :)
     T = robot.fkine(q(i,:));  
     p(i,:) = transl(T);     
     plot3(p(i,1), p(i,2), p(i,3),'*r');

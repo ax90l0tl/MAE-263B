@@ -1,0 +1,6 @@
+*.zip
+*.asv
+!spec/*.asv
+!spec/*.zip
+*.mp4
+!spec/*.mp4
