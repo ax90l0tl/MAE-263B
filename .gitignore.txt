@@ -1,3 +1,8 @@
-**/*.zip
-**/*.asv
-**/*.mp4
+# Ignore everything
+*
+# Don't ignore directories, so we can recurse into them
+!*/
+# Don't ignore .gitignore and *.foo files
+!*.zip
+!*.asv
+!*.mp4
