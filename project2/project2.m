@@ -27,7 +27,7 @@ pos_3 = [-pcb_dim(1:2)/2 + chip_dim(1:2)/2, chip_dim(3), pi];
 pos_2 = [pcb_dim(1)/2 - chip_dim(1)/2, -pcb_dim(2)/2 + chip_dim(2)/2, chip_dim(3), pi/2];
 pos_4 = [-pcb_dim(1)/2 + chip_dim(1)/2, pcb_dim(2)/2 - chip_dim(2)/2, chip_dim(3), 3*pi/2];
 
-pcb_pos_mat = transform(pcb_pos)
+pcb_pos_mat = transform(pcb_pos);
 pos_1_mat = pcb_pos_mat * transform(pos_1);
 pos_1_v1_mat = pos_1_mat * transl(0, 0, 0.150);
 pos_2_mat = pcb_pos_mat * transform(pos_2);
@@ -39,6 +39,7 @@ pos_4_mat = pcb_pos_mat * transform(pos_4);
 feeder_pos_mat = transform(feeder_pos);
 feeder_pos_v1_mat = transform(feeder_pos_v1);
 
+T = bot.fkine([0, 0, 0, 0]);
 
 
 bot.plot(init_pose, 'workspace', [-0.2, 0.6, -0.2, 0.6, 0, 1], 'view', [0, 90]);

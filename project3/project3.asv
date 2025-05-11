@@ -40,9 +40,9 @@ T_0_3 = T_0_1*T_1_2*T_2_3;
 J_exp(1:3, 2) = cross(T_all(1:3, end-1, 2), P_0_4 - T_0_2(1:3, end));
 J_exp(1:3, 3) = cross(T_all(1:3, end-1, 3), P_0_4 - T_0_3(1:3, end));
 J_exp(1:3, 4) = T_all(1:3, end-1, 4);
-J_exp(4:end, 1) = T_0_1(1:3, 3);
-J_exp(4:end, 2) = T_0_2(1:3, 3);
-J_exp(4:end, 3) = T_0_3(1:3, 3);
+J_exp(4:end, 1) = T
+J_exp(4:end, 2) = T_all(1:3, end-1, 2);
+J_exp(4:end, 3) = T_all(1:3, end-1, 3);
 
 J_exp = simplify(J_exp);
 pretty(J_exp)

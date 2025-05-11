@@ -27,25 +27,25 @@ syms g
 I_1 = diag([I1xx, I1yy, I1zz]);
 I_2 = diag([I2xx, I2yy, I2zz]);
 
-I_1 = (1/12)*m1*L1^2*diag([0, 1, 1]);
-I_2 = (1/12)*m2*L2^2*diag([0, 1, 1]);
+% I_1 = (1/12)*m1*L1^2*diag([0, 1, 1]);
+% I_2 = (1/12)*m2*L2^2*diag([0, 1, 1]);
 
 I_0_1 = simplify(R_0_1*I_1*transpose(R_0_1));
 I_0_2 = simplify(R_0_2*I_1*transpose(R_0_2));
 P_c1 = [L1/2;0;0;1];
 P_c2 = [L2/2;0;0;1];
-P_0_c1 = T_0_1*P_c1;
-P_0_c2 = simplify(T_0_2*P_c2);
+P_0_c1 = transpose(T_0_1)*P_c1;
+P_0_c2 = simplify(transpose(T_0_2)*P_c2);
 
 Z_0_1 = T_0_1(1:3, 3);
 Z_0_2 = T_0_2(1:3, 3);
-J_0_v1 = [cross(Z_0_1, P_0_c1(1:3) - P_0_1), zeros(3, 1)]
-J_0_w1 = [Z_0_1, zeros(3, 1)]
+J_0_v1 = [cross(Z_0_1, P_0_c1(1:3) - P_0_1), zeros(3, 1)];
+J_0_w1 = [Z_0_1, zeros(3, 1)];
 
-J_0_v2 = simplify([cross(Z_0_1, P_0_c2(1:3) - P_0_1), cross(Z_0_2, P_0_c2(1:3) - P_0_2)])
-J_0_w2 = [Z_0_1, Z_0_2]
+J_0_v2 = simplify([cross(Z_0_1, P_0_c2(1:3) - P_0_1), cross(Z_0_2, P_0_c2(1:3) - P_0_2)]);
+J_0_w2 = [Z_0_1, Z_0_2];
 
-M = simplify(transpose(J_0_v1)*m1*J_0_v1 + transpose(J_0_w1)*I_0_1*J_0_w1 + transpose(J_0_v2)*m2*J_0_v2 + transpose(J_0_w2)*I_0_2*J_0_w2)
+M = simplify(transpose(J_0_v1)*m1*J_0_v1 + transpose(J_0_w1)*I_0_1*J_0_w1 + transpose(J_0_v2)*m2*J_0_v2 + transpose(J_0_w2)*I_0_2*J_0_w2);
 
 V_1 = sym(0);
 V_2 = sym(0);
@@ -57,19 +57,19 @@ for j = 1:2
         V_2 = V_2 + (diff(M(2, j), th(k)) - 0.5*diff(M(j, k), t2))*dq(j)*dq(k);
     end
 end
-V = simplify([V_1;V_2])
+V = simplify([V_1;V_2]);
 
 grav = [0; -g; 0];
 G_1 = simplify(-m1*transpose(grav)*J_0_v1(:, 1) - m2*transpose(grav)*J_0_v2(:, 1));
 G_2 = simplify(-m1*transpose(grav)*J_0_v1(:, 2) - m2*transpose(grav)*J_0_v2(:, 2));
-G = [G_1;G_2]
+G = [G_1;G_2];
 
-Tau = simplify(M*[t1dd;t2dd] + V + G)
-Tau(1)
-Tau(2)
+Tau_L = simplify(M*[t1dd;t2dd] + V + G)
+Tau_L(1)
+Tau_L(2)
 
 %% Newton Euler
-clc
+% clc
 P_c1 = [L1/2;0;0];
 P_c2 = [L2/2;0;0];
 
@@ -85,12 +85,12 @@ wd_0 = zeros(3, 1);
 v_0 = zeros(3, 1);
 vd_0 = [0;g;0;];
 
-f3 = [-10;0;0]; % N
-n3 = [0;0;10]; % N*m
+f3 = [0;0;0]; % N
+n3 = [0;0;0]; % N*m
 % Outward Iteration
 %  i = 1
 w_1 = transpose(R_0_1)*w_0 + t1d*[0;0;1];
-wd_1 = transpose(R_0_1)*wd_0 + cross(transpose(R_0_1)*w_0, t1d*[0;0;1]) + t1dd*[0;0;1];
+wd_1 = transpose(R_0_1)*wd_0 + cross(w_1, t1d*[0;0;1]) + t1dd*[0;0;1];
 vd_1 = transpose(R_0_1)*(cross(wd_0, P_0_1) + cross(w_0, cross(w_0, P_0_1)) + vd_0);
 vd_1_c = cross(wd_1, P_c1) + cross(w_1, cross(w_1, P_c1)) + vd_1;
 F_1 = m1*vd_1_c;
@@ -99,8 +99,8 @@ N_1 = I_1*wd_1 + cross(w_1, I_1*w_1);
 
 w_2 = transpose(R_1_2)*w_1 + t2d*[0;0;1];
 wd_2 = transpose(R_1_2)*wd_1 + cross(transpose(R_1_2)*w_1, t2d*[0;0;1]) + t2dd*[0;0;1];
-vd_2 = transpose(R_1_2)*(cross(wd_1, P_1_2) + cross(w_1, cross(w_1, P_1_2)) + vd_1);
-vd_2_c = cross(wd_2, P_c2) + cross(w_2, cross(w_2, P_c1)) + vd_2;
+vd_2 = simplify(transpose(R_1_2)*(cross(wd_1, P_1_2) + cross(w_1, cross(w_1, P_1_2)) + vd_1));
+vd_2_c = simplify(cross(wd_2, P_c2) + cross(w_2, cross(w_2, P_c2)) + vd_2);
 F_2 = m2*vd_2_c;
 N_2 = I_2*wd_2 + cross(w_2, I_2*w_2);
 
@@ -183,9 +183,17 @@ end
 %%
 torques_g = torques;
 torques_no_g = torques - t_grav;
-
-plot
-
+torques_no_g./torques_g
+figure
+hold on
+% plot(time, torques)
+% plot(time, torques_no_g)
+plot(time, torques_no_g./torques_g)
+title('Ratio of Joint Torques w/o Gravity to Joint Torques w/ Gravity')
+xlabel('Time (s)')
+% ylabel('Torque (N*m)')
+legend('J1', 'J2')
+hold off
 %% Plots
 close all
 % figure
